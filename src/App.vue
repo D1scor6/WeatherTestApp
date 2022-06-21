@@ -8,9 +8,9 @@
         <div class="card-top text-center" style="margin-bottom: 9rem">
           <div class="city-name my-3">
             <p>Ростов-на-Дону</p>
-            <span>{{ new Date().toLocaleDateString("ru-ru", { day: "2-digit"}) }}.{{ new Date().toLocaleDateString("ru-ru", { month: "2-digit"}) }},
+            <span>{{ new Date().toLocaleDateString("ru", { day: "2-digit"}) }}.{{ new Date().toLocaleDateString("ru", { month: "2-digit"}) }},
             
-            {{ new Date().toLocaleDateString("ru-ru", { weekday: "long"}) }}
+            {{ new Date().toLocaleDateString("ru", { weekday: "long"}) }}
             
             </span>
             <p>RU</p>
@@ -61,70 +61,93 @@
           </div>
           
         </div>
-        <div class="col">
-            <WeatherChart />
           </div>
         </div>
-      </div>
+        <div>
+          <!-- <WeatherChart /> -->
+        </div>
     </div>
   </div>
 </template>
 
 <script>
-import WeatherChart from './components/WeatherChart.vue';
+// import WeatherChart from './components/WeatherChart.vue';
+
 
 export default {
-  name: 'App',
-  components: {
-    WeatherChart
-  },
-  data() {
-    return {
-      weather: {
-        weatherIcon: "",
-        temperature: 26,
-        description: "Солнечно",
-        dayTemp: "",
-        eveTemp:"",
-        mornTemp: "",
-        nightTemp: "",
-        feelLike: "",
-        humidity: "",
-        forecast: null
-      },
-      
-    }
-  },
-  mounted: function() {
-    this.getWeather();
-    // this.dataUpdate();
-  },
-  methods: {
-    getWeather: async function() {
-      const key = "a6fe19a124c5d9995669f504964d8a83"
-      const baseURL = `https://api.openweathermap.org/data/2.5/onecall?lat=47.2364&lon=39.7139&appid=${key}&units=metric&lang=ru`;
-      
-      const response = await fetch(baseURL)
-      const data = await response.json();
-      
-
-      
-      this.weather.temperature = Math.round(data.hourly[0].temp);
-      this.weather.description = data.daily[0].weather[0].description;
-      this.weather.dayTemp = Math.round(data.daily[0].temp.day);
-      this.weather.eveTemp = Math.round(data.daily[0].temp.eve);
-      this.weather.mornTemp = Math.round(data.daily[0].temp.morn);
-      this.weather.nightTemp = Math.round(data.daily[0].temp.night);
-      this.weather.feelLike = Math.round(data.hourly[0].feels_like);
-      this.weather.humidity = Math.round(data.daily[0].humidity);
-      this.weather.weatherIcon= `https://openweathermap.org/img/w/${data.daily[0].weather[0].icon}.png`;
-      this.weather.forecast = data.daily.slice(1,4);
-      
+    name: "App",
+    // components: { 
+    //   WeatherChart 
+    // },
+    data() {
+        return {
+            weather: {
+                weatherIcon: "",
+                temperature: 26,
+                description: "Солнечно",
+                dayTemp: "",
+                eveTemp: "",
+                mornTemp: "",
+                nightTemp: "",
+                feelLike: "",
+                humidity: "",
+                forecast: null
+            },
+            hist: {
+                APIkey: "a6fe19a124c5d9995669f504964d8a83",
+                lat: 47.2364,
+                lon: 39.7139,
+                fDay: new Date(),
+                sDay: new Date(),
+                tDay: new Date()
+            }
+        };
     },
-    // dataUpdate: function() {
-    //   setInterval(this.getWeather, 60000 );
-    // }
-  }
+    mounted: function () {
+        this.getWeather();
+        this.getHistForecast();
+        this.dataUpdate();
+    },
+    methods: {
+        getWeather: async function () {
+            const key = "a6fe19a124c5d9995669f504964d8a83";
+            const baseURL = `https://api.openweathermap.org/data/2.5/onecall?lat=47.2364&lon=39.7139&appid=${key}&units=metric&lang=ru`;
+            const response = await fetch(baseURL);
+            const data = await response.json();
+            // console.log(data)
+            this.weather.temperature = Math.round(data.hourly[0].temp);
+            this.weather.description = data.daily[0].weather[0].description;
+            this.weather.dayTemp = Math.round(data.daily[0].temp.day);
+            this.weather.eveTemp = Math.round(data.daily[0].temp.eve);
+            this.weather.mornTemp = Math.round(data.daily[0].temp.morn);
+            this.weather.nightTemp = Math.round(data.daily[0].temp.night);
+            this.weather.feelLike = Math.round(data.hourly[0].feels_like);
+            this.weather.humidity = Math.round(data.daily[0].humidity);
+            this.weather.weatherIcon = `https://openweathermap.org/img/w/${data.daily[0].weather[0].icon}.png`;
+            this.weather.forecast = data.daily.slice(1, 4);
+        },
+        getHistForecast: async function () {
+            this.hist.fDay.setUTCDate(this.hist.fDay.getUTCDate() - 1);
+            this.hist.sDay.setUTCDate(this.hist.sDay.getUTCDate() - 2);
+            this.hist.tDay.setUTCDate(this.hist.tDay.getUTCDate() - 3);
+            const firstDay = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=${this.hist.lat}&lon=${this.hist.lon}&dt=${Math.floor(this.hist.fDay.getTime() / 1000)}&appid=${this.hist.APIkey}&units=metric`;
+            const response = await fetch(firstDay);
+            const data = await response.json();
+            console.log(data);
+            const secondDay = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=${this.hist.lat}&lon=${this.hist.lon}&dt=${Math.floor(this.hist.sDay.getTime() / 1000)}&appid=${this.hist.APIkey}&units=metric`;
+            const response2 = await fetch(secondDay);
+            const data2 = await response2.json();
+            console.log(data2);
+            const thirdDay = `https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=${this.hist.lat}&lon=${this.hist.lon}&dt=${Math.floor(this.hist.tDay.getTime() / 1000)}&appid=${this.hist.APIkey}&units=metric`;
+            const response3 = await fetch(thirdDay);
+            const data3 = await response3.json();
+            console.log(data3);
+        },
+        dataUpdate: function() {
+          setInterval(this.getWeather, 60000 );
+        }
+    }
+    
 }
 </script>
 
