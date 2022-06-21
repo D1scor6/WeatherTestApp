@@ -4,7 +4,7 @@
       <h1 class="title text-center">Тестовое задание</h1>
 
       <div class="card my-3 shadow-lg back-card overflow-hidden">
-        <!-- Верхняя часть карточки -->
+        
         <div class="card-top text-center" style="margin-bottom: 9rem">
           <div class="city-name my-3">
             <p>Ростов-на-Дону</p>
@@ -16,7 +16,7 @@
             <p>RU</p>
           </div>
         </div>
-        <!-- Конец верхней части -->
+        
 
         <div class="card-body">
           <div class="card-mid">
@@ -97,7 +97,7 @@ export default {
   },
   mounted: function() {
     this.getWeather();
-    // this.dataUpdate();
+    this.dataUpdate();
   },
   methods: {
     getWeather: async function() {
@@ -121,9 +121,9 @@ export default {
       this.weather.forecast = data.daily.slice(1,4);
       
     },
-    // dataUpdate: function() {
-    //   setInterval(this.getWeather, 60000 );
-    // }
+    dataUpdate: function() {
+      setInterval(this.getWeather, 60000 );
+    }
   }
 }
 </script>
